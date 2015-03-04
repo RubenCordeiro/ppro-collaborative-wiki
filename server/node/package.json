@@ -1,0 +1,27 @@
+{
+  "name": "ppro-collaborative-wiki",
+  "version": "1.0.0",
+  "description": "Micro-service that manages the real-time live editing of the wiki documents",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SynapseR/ppro-collaborative-wiki.git"
+  },
+  "keywords": [
+    "wiki",
+    "collaborative"
+  ],
+  "author": "Ruben Cordeiro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SynapseR/ppro-collaborative-wiki/issues"
+  },
+  "homepage": "https://github.com/SynapseR/ppro-collaborative-wiki",
+  "dependencies": {
+    "hapi": "~8.2.0",
+    "share": "~0.7.12"
+  }
+}
