@@ -1,0 +1,13 @@
+{
+  "name": "CollabWeaki",
+  "version": "1.0.0",
+  "description": "Micro-service that manages the real-time live editing of the wiki documents",
+  "private": true,
+  "dependencies": {
+    "browserchannel": "^2.0.0",
+    "connect": "^3.3.5",
+    "livedb": "^0.5.12",
+    "redis": "^0.12.1",
+    "share": "^0.6.3"
+  }
+}
