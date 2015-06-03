@@ -14,7 +14,7 @@ libraryDependencies ++= {
   Seq(
     // Spray
     "io.spray" %% "spray-can" % sprayVersion,
-    "io.spray" %% "spray-routing" % sprayVersion,
+    "io.spray" %% "spray-routing-shapeless2" % sprayVersion,
     "io.spray" %% "spray-json" % "1.3.2",
     
     // Akka
@@ -33,7 +33,9 @@ libraryDependencies ++= {
 
     "org.scala-lang" % "scala-reflect" % "2.11.6",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-    "org.scala-lang.modules" %% "scala-xml" % "1.0.4"
+    "org.scala-lang.modules" %% "scala-xml" % "1.0.4",
+
+    "com.wandoulabs.akka" %% "spray-websocket" % "0.1.4"
   )
 }
 

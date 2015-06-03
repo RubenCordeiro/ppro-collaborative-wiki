@@ -1,29 +1,22 @@
-package pt.up.fe.ppro.services
+package pt.up.fe.ppro.services.node
 
-import java.io.File
-
-import akka.actor.{Actor, Props}
-import akka.util.Timeout
+import akka.actor.{ActorLogging, Actor, Props}
 import pt.up.fe.ppro.WeakiConfiguration
 
 import scala.async.Async._
-import scala.collection.immutable
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.sys.process.Process
 import scala.util.Success
 
-import concurrent.ExecutionContext.Implicits.global
-import akka.pattern.ask
-import concurrent.duration._
-
-object NodeService {
-  def props() = Props[NodeService]()
+object NodeActor {
+  def props() = Props[NodeActor]()
 
   case object Start
   case object Stop
-  private[NodeService] case class ProcessStopped(exitCode: Int)
+  private[NodeActor] case class ProcessStopped(exitCode: Int)
 }
 
-class NodeService extends Actor {
+class NodeActor extends Actor with ActorLogging {
 
   val nodeProcess = Process(
     Seq(
@@ -36,7 +29,7 @@ class NodeService extends Actor {
   var nodeProcessInstance = Option.empty[Process]
 
   def receive = {
-    case NodeService.Start if nodeProcessInstance.isEmpty =>
+    case NodeActor.Start if nodeProcessInstance.isEmpty =>
       try {
         nodeProcessInstance = Some(nodeProcess.run())
 
@@ -44,19 +37,19 @@ class NodeService extends Actor {
           nodeProcessInstance.get.exitValue()
         } andThen {
           case Success(exitCode) =>
-            self ! NodeService.ProcessStopped(exitCode)
+            self ! NodeActor.ProcessStopped(exitCode)
         }
 
       } catch {
         case e: Exception => println(e.getMessage)
       }
 
-    case NodeService.Stop if nodeProcessInstance.isDefined =>
+    case NodeActor.Stop if nodeProcessInstance.isDefined =>
       nodeProcessInstance.get.destroy()
       nodeProcessInstance = None
 
-    case NodeService.ProcessStopped(exitCode) if nodeProcessInstance.isDefined =>
-      println(s"Node process exited with $exitCode")
+    case NodeActor.ProcessStopped(exitCode) if nodeProcessInstance.isDefined =>
+      log.error(s"Node process exited with $exitCode")
       nodeProcessInstance = None
 
   }
