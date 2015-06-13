@@ -12,7 +12,7 @@ sharejs.attach(server, options);
 
 var port = Number(process.argv[2]) || 8000;
 
-server.listen(port, function () {
+server.listen(port, '0.0.0.0', function () {
     console.log('Server running at http://localhost:' + port + '/');
 });
 

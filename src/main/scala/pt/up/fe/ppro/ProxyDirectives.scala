@@ -2,14 +2,14 @@ package pt.up.fe.ppro
 
 import akka.actor.ActorSystem
 import akka.io.IO
-import spray.can.Http
+import spray.can.server.UHttp
 import spray.http._
 import spray.routing.{RequestContext, Route}
 
 trait ProxyDirectives {
 
   private def proxyRequest(updateRequest: RequestContext => HttpRequest)(implicit system: ActorSystem): Route =
-    ctx => IO(Http)(system) tell (updateRequest(ctx), ctx.responder)
+    ctx => IO(UHttp)(system) tell (updateRequest(ctx), ctx.responder)
 
   private def stripHostHeader(headers: List[HttpHeader] = Nil) =
     headers filterNot (header => header is HttpHeaders.Host.lowercaseName)

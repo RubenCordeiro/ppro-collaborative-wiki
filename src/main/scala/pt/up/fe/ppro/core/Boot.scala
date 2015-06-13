@@ -1,7 +1,7 @@
 package pt.up.fe.ppro.core
 
 
-import akka.actor.{ActorRefFactory, ActorSystem, Props}
+import akka.actor.{ActorRefFactory, ActorSystem, Props, PoisonPill}
 import akka.event.Logging.InfoLevel
 import akka.io.IO
 import akka.pattern.ask
@@ -19,8 +19,7 @@ import scala.concurrent.duration._
 trait BootedCore extends Core with Api {
   this: CoreActors =>
 
-  val rootService = system.actorOf(RoutedHttpActor.props(routes), "routes")
-  val wsService = system.actorOf(Props(classOf[ManagerService]), "wss")
+  val rootService = system.actorOf(Props(classOf[ManagerService], routes), "root-service")
 
   private def showReq(req: HttpRequest) = LogEntry(req.uri, InfoLevel)
 }
@@ -32,14 +31,11 @@ object Boot extends App with BootedCore with CoreActors {
   def actorRefFactory: ActorRefFactory = system
 
   nodeActor ! NodeActor.Start
-
-  IO(UHttp) ? Http.Bind(wsService, interface = WeakiConfiguration.Chat.interface, port = WeakiConfiguration.Chat.port + 1)
-
+  
   IO(UHttp) ? Http.Bind(rootService, interface = WeakiConfiguration.Chat.interface, port = WeakiConfiguration.Chat.port)
 
   scala.sys.addShutdownHook {
     IO(UHttp) ! Http.Unbind
-    IO(Http) ! Http.Unbind
     nodeActor ! NodeActor.Stop
     system.shutdown()
   }

@@ -3,7 +3,7 @@ package pt.up.fe.ppro.api
 import akka.actor.{ActorRef, ActorLogging, Props, Terminated}
 import pt.up.fe.ppro.services.websocket.{DocumentActor, ChatServerActor}
 import spray.can.Http
-import spray.routing.HttpServiceActor
+import spray.routing.{Route, HttpServiceActor}
 
 import scala.collection.mutable.HashMap
 
@@ -14,7 +14,7 @@ object ManagerService {
 
 }
 
-class ManagerService extends HttpServiceActor with ActorLogging {
+class ManagerService(val route: Route) extends HttpServiceActor with ActorLogging {
 
   private val documentActors = new HashMap[String, ActorRef]
 
@@ -29,14 +29,17 @@ class ManagerService extends HttpServiceActor with ActorLogging {
     case connected : Http.Connected =>
       log.info("Registering new ChatServerActor actor for {}.", sender.path.name)
 
-      val childActor = context.actorOf(Props(classOf[ChatServerActor], sender, self))
+      val childActor = context.actorOf(Props(classOf[ChatServerActor], sender, self, route))
       sender ! Http.Register(childActor)
 
       context.watch(childActor)
 
-    case Terminated(documentActor) =>
+    case Terminated(documentActor) if documentActors.valuesIterator.contains(documentActor) =>
       log.debug(s"Actor ${documentActor.path.name} terminated")
       documentActors.retain{ case (_, ac) => ac != documentActor }
+
+    case Terminated(chatServerActor) =>
+      log.debug(s"Actor ${chatServerActor.path.name} terminated")
 
     case ManagerService.GetDocumentActor(document) =>
       val docActor = documentActors.getOrElseUpdate(document, newDocumentActor(document))

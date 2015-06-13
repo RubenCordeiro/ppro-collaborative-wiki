@@ -13,6 +13,7 @@ object WebSocket {
   case class Send(msg : String) extends WebSocketMessage
   case object Release extends WebSocketMessage
   case class Register(request : HttpRequest, handler : ActorRef, autoping : Boolean = false)
+  case object Connected
   private[websocket] object Ping extends WebSocketMessage
 }
 

@@ -51,6 +51,9 @@ class WebSocketChatActor(val documentActor: ActorRef) extends Actor with ActorLo
 
   def connectedClient(webSocket: WebSocket) = {
     {
+      case WebSocket.`Connected` =>
+        webSocket ! messages.Connected
+
       case WebSocket.Message(ws, msg) =>
         log.debug("url {} received msg '{}'", ws.path, msg)
 

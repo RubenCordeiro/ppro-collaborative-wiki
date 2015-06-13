@@ -18,7 +18,7 @@ realtimeweaki.messages.Say = function (content) {
     });
 };
 
-realtimeweaki.baseCharUri = "ws://localhost:8081/chat";
+realtimeweaki.baseCharUri = "ws://localhost:8080/chat";
 
 realtimeweaki.connectToChat = function (document, username, messageReceived) {
     messageReceived = messageReceived || console.log;
@@ -26,7 +26,25 @@ realtimeweaki.connectToChat = function (document, username, messageReceived) {
     var wsUri = realtimeweaki.baseCharUri + "/" + document;
     var wSocket = new WebSocket(wsUri);
 
+    var unconnectedClient = function (ev) {
+        console.log("unconnectedClient received: " + ev.data);
+
+        var msg = JSON.parse(ev.data);
+
+        if (msg.mType != "Control")
+            return;
+
+        switch (msg.msg) {
+            case "Connected":
+                wSocket.send(realtimeweaki.messages.Register(username));
+                wSocket.onmessage = connectedClient;
+                break;
+        }
+    };
+
     var connectedClient = function (ev) {
+        console.log("connectedClient received: " + ev.data);
+
         var msg = JSON.parse(ev.data);
 
         if (msg.mType != "Control")
@@ -43,6 +61,8 @@ realtimeweaki.connectToChat = function (document, username, messageReceived) {
     };
 
     var registeredClient = function (ev) {
+        console.log("registeredClient received: " + ev.data);
+
         var msg = JSON.parse(ev.data);
 
         if (msg.mType == "Control") {
@@ -67,8 +87,7 @@ realtimeweaki.connectToChat = function (document, username, messageReceived) {
     };
 
     wSocket.onopen = function (ev) {
-        wSocket.onmessage = connectedClient;
-        wSocket.send(realtimeweaki.messages.Register(username));
+        wSocket.onmessage = unconnectedClient;
     };
 
     wSocket.onerror = function (ev) { console.error("ERROR: " + ev.data); };

@@ -12,6 +12,8 @@ sealed trait Control {
   override def mType = "Control"
 }
 
+case object Connected extends Message with Control
+
 case class Register(name: String) extends Message with Control
 
 case class Join(name: String) extends Message with Control
@@ -47,6 +49,7 @@ trait JsonProtocol extends DefaultJsonProtocol {
         case msg: Said => msg.toJson
         case msg: Join => msg.toJson
         case msg: Left => msg.toJson
+        case `Connected` => JsObject()
       }).asJsObject.fields +
         ("mType" -> JsString(obj.mType)) +
         ("msg" -> JsString(obj.productPrefix))
@@ -61,6 +64,7 @@ trait JsonProtocol extends DefaultJsonProtocol {
           case JsString("Said") => json.convertTo[Said]
           case JsString("Join") => json.convertTo[Join]
           case JsString("Left") => json.convertTo[Left]
+          case JsString("Connected") => Connected
 
 
         }

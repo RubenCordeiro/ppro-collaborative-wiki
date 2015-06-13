@@ -18,14 +18,19 @@ object NodeActor {
 
 class NodeActor extends Actor with ActorLogging {
 
+  private def getResouceAbsolutePath(res: String) = {
+    val f = new java.io.File(getClass.getClassLoader.getResource("index.js").getFile())
+    f.getAbsolutePath()
+  }
+
   val nodeProcess = Process(
     Seq(
       WeakiConfiguration.Config.nodeExecutable,
-      getClass.getClassLoader.getResource("index.js").getPath().substring(1),
+      getResouceAbsolutePath("index.js"),
       WeakiConfiguration.Collab.port.toString
     )
   )
-
+  
   var nodeProcessInstance = Option.empty[Process]
 
   def receive = {
