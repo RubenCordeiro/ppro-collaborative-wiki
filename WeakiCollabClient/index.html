@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="realtimeweaki.js"></script>
+</head>
+<body>
+
+
+    <input type="text" id="doc" value="migulorama/sope" />
+    <input type="text" id="username" />
+    <button id="submitButton">login</button>
+
+    <div id="chatBoard">
+
+    </div>
+    <textarea id="message" ></textarea>
+    <button id="sendButton">send</button>
+
+<script>
+    $(document).ready(function () {
+       $('#submitButton').click(function (ev) {
+           ev.preventDefault();
+           var doc = $('input#doc').val();
+           var username = $('input#username').val();
+           var chat = realtimeweaki.connectToChat(doc, username, function (msg) {
+               $('#chatBoard').append($('<p></p>').text(msg));
+           });
+
+           $('#sendButton').click(function (ev) {
+               ev.preventDefault();
+
+               var messageElem = $('#message');
+               var message = messageElem.val();
+               chat.send(message);
+               messageElem.val("");
+               messageElem.focus();
+
+           });
+       })
+    });
+</script>
+</body>
+</html>

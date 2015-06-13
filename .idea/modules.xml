@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CollabWeaki/CollabWeaki.iml" filepath="$PROJECT_DIR$/CollabWeaki/CollabWeaki.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeakiCollabClient/WeakiCollabClient.iml" filepath="$PROJECT_DIR$/WeakiCollabClient/WeakiCollabClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/realtimeweaki.iml" filepath="$PROJECT_DIR$/.idea/modules/realtimeweaki.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/realtimeweaki-build.iml" filepath="$PROJECT_DIR$/.idea/modules/realtimeweaki-build.iml" />
     </modules>

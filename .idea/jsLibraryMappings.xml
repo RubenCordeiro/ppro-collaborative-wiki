@@ -3,5 +3,6 @@
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$/CollabWeaki" libraries="{CollabWeaki node_modules, Node.js v0.10.32 Core Modules}" />
     <file url="file://$PROJECT_DIR$/CollabWeaki/index.js" libraries="{Node.js Globals}" />
+    <file url="PROJECT" libraries="{jquery}" />
   </component>
 </project>
