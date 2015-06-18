@@ -11,7 +11,7 @@ import spray.routing.Route
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 
-class ChatServerActor(connection: ActorRef, manager: ActorRef, val route: Route) extends WebSocketServer(connection) {
+class ChatServerActor(connection: ActorRef, manager: ActorRef) extends WebSocketServer(connection) {
   implicit val timeout = Timeout(5.seconds)
 
   val pathPrefix = "chat"

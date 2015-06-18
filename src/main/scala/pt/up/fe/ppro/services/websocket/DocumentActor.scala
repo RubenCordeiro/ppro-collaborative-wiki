@@ -1,8 +1,12 @@
 package pt.up.fe.ppro.services.websocket
 
 import akka.actor._
-import pt.up.fe.ppro.models.messages.{Message, Join, Say, Said, Left}
+import org.jose4j.jwa.AlgorithmConstraints
+import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import pt.up.fe.ppro.models.messages._
 import scala.collection.mutable
+import spray.json._
+import spray.json.DefaultJsonProtocol._
 
 object DocumentActor {
   def props() = Props[DocumentActor]
@@ -11,7 +15,7 @@ object DocumentActor {
   case class ClientAdded(client: ActorRef)
 
   case class NewMessage(message: String)
-  case class ClientName(name: String)
+  case class ClientToken(name: String)
 
 }
 
@@ -19,16 +23,20 @@ class DocumentActor extends Actor with ActorLogging {
   import DocumentActor._
 
   val clients = mutable.Set[ActorRef]()
-  val names = mutable.HashMap[ActorRef, String]()
+  val clientsData = mutable.HashMap[ActorRef, (String, String)]()
 
   override def receive = {
     case Terminated(client) =>
       clients -= client
-      val name = names get client
+      val name = clientsData get client
       if (name.isDefined) {
-        val msg: Message = Left(name.get)
+        val timestamp: Long = System.currentTimeMillis / 1000
+        val msg: Message = Left(timestamp, name.get._1, name.get._2)
         clients.foreach(_ ! msg)
-        names -= client
+
+        // TODO: Save to redis
+
+        clientsData -= client
       }
       if (clients.isEmpty)
         context stop self
@@ -39,14 +47,42 @@ class DocumentActor extends Actor with ActorLogging {
       clients += newActor
       sender ! ClientAdded(newActor)
 
-    case ClientName(name) =>
+    case ClientToken(token) =>
       if (clients contains sender) {
-        names.update(sender, name)
-        clients.foreach(_ ! Join(name))
+        try {
+          val jwtConsumer = new JwtConsumerBuilder().setDisableRequireSignature().setDisableRequireSignature().setJwsAlgorithmConstraints(AlgorithmConstraints.ALLOW_ONLY_NONE).setJweAlgorithmConstraints(AlgorithmConstraints.ALLOW_ONLY_NONE).setJweContentEncryptionAlgorithmConstraints(AlgorithmConstraints.ALLOW_ONLY_NONE).build()
+
+          val jwtClaims = jwtConsumer.processToClaims(token)
+
+          val data = jwtClaims.toJson.parseJson.asJsObject.fields.get("data").get.convertTo[Map[String,String]]
+
+          val name = data.get("nickname").get
+          val email = data.get("email").get
+
+          clientsData.update(sender, (name, email))
+
+          sender ! Registered(name, email)
+
+          val timestamp: Long = System.currentTimeMillis / 1000
+          val msg: Message = Join(timestamp, name, email)
+          clients.view.filter(_ != sender).foreach(_ ! msg)
+
+          // TODO: Save to redis
+
+          // TODO: Send History
+        } catch {
+          case e =>
+            // TODO: Send ERROR
+        }
+
       }
 
-    case Say(message) if names.keySet.contains(sender()) =>
-      clients.foreach(_ ! Said(names(sender()), message))
+    case Say(message) if clientsData.keySet.contains(sender()) =>
+      val senderData = clientsData(sender())
+      val timestamp: Long = System.currentTimeMillis / 1000
+      clients.foreach(_ ! Said(timestamp, senderData._1, senderData._2, message))
+
+      // TODO: Save to redis
   }
 
 }

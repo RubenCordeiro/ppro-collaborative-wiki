@@ -35,7 +35,8 @@ libraryDependencies ++= {
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
     "org.scala-lang.modules" %% "scala-xml" % "1.0.4",
 
-    "com.wandoulabs.akka" %% "spray-websocket" % "0.1.4"
+    "com.wandoulabs.akka" %% "spray-websocket" % "0.1.4",
+    "org.bitbucket.b_c" % "jose4j" % "0.4.2"
   )
 }
 

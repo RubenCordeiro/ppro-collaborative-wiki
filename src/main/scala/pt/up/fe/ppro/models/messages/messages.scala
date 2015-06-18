@@ -14,11 +14,13 @@ sealed trait Control {
 
 case object Connected extends Message with Control
 
-case class Register(name: String) extends Message with Control
+case class Registered(name: String, email: String) extends Message with Control
 
-case class Join(name: String) extends Message with Control
+case class Register(token: String) extends Message with Control
 
-case class Left(name: String) extends Message with Control
+case class Join(timestamp: Long, name: String, email: String) extends Message with Control
+
+case class Left(timestamp: Long, name: String, email: String) extends Message with Control
 
 sealed trait Chat {
   this: Message =>
@@ -28,15 +30,16 @@ sealed trait Chat {
 
 case class Say(content: String) extends Message with Chat
 
-case class Said(name: String, content: String) extends Message with Chat
+case class Said(timestamp: Long, name: String, email: String, content: String) extends Message with Chat
 
 trait JsonProtocol extends DefaultJsonProtocol {
   object messagesFormats {
     implicit val registerFormat = jsonFormat1(Register)
     implicit val sayFormat = jsonFormat1(Say)
-    implicit val saidFormat = jsonFormat2(Said)
-    implicit val joinFormat = jsonFormat1(Join)
-    implicit val leftFormat = jsonFormat1(Left)
+    implicit val saidFormat = jsonFormat4(Said)
+    implicit val joinFormat = jsonFormat3(Join)
+    implicit val leftFormat = jsonFormat3(Left)
+    implicit val registeredFormat = jsonFormat2(Registered)
   }
 
   implicit val messageFormat = new RootJsonFormat[Message] {
@@ -50,6 +53,7 @@ trait JsonProtocol extends DefaultJsonProtocol {
         case msg: Join => msg.toJson
         case msg: Left => msg.toJson
         case `Connected` => JsObject()
+        case msg: Registered => msg.toJson
       }).asJsObject.fields +
         ("mType" -> JsString(obj.mType)) +
         ("msg" -> JsString(obj.productPrefix))
@@ -65,8 +69,7 @@ trait JsonProtocol extends DefaultJsonProtocol {
           case JsString("Join") => json.convertTo[Join]
           case JsString("Left") => json.convertTo[Left]
           case JsString("Connected") => Connected
-
-
+          case JsString("Registered") => json.convertTo[Registered]
         }
     }
   }

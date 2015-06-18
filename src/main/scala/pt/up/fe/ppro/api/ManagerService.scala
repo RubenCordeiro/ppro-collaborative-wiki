@@ -14,7 +14,7 @@ object ManagerService {
 
 }
 
-class ManagerService(val route: Route) extends HttpServiceActor with ActorLogging {
+class ManagerService extends HttpServiceActor with ActorLogging {
 
   private val documentActors = new HashMap[String, ActorRef]
 
@@ -29,7 +29,7 @@ class ManagerService(val route: Route) extends HttpServiceActor with ActorLoggin
     case connected : Http.Connected =>
       log.info("Registering new ChatServerActor actor for {}.", sender.path.name)
 
-      val childActor = context.actorOf(Props(classOf[ChatServerActor], sender, self, route))
+      val childActor = context.actorOf(Props(classOf[ChatServerActor], sender, self))
       sender ! Http.Register(childActor)
 
       context.watch(childActor)

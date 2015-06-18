@@ -5,5 +5,4 @@ import pt.up.fe.ppro.models.messages
 import spray.json._
 
 object MyJsonFormat extends DefaultJsonProtocol with messages.JsonProtocol {
-  implicit val personFormat = jsonFormat3(models.Person)
 }

@@ -2,11 +2,11 @@ var realtimeweaki = {};
 
 realtimeweaki.messages = {};
 
-realtimeweaki.messages.Register = function (name) {
+realtimeweaki.messages.Register = function (token) {
     return JSON.stringify({
         mType : "Control",
         msg : "Register",
-        name: name
+        token: token
     });
 };
 
@@ -51,11 +51,10 @@ realtimeweaki.connectToChat = function (document, username, messageReceived) {
             return;
 
         switch (msg.msg) {
-            case "Join":
-                if (msg.name == username) {
-                    messageReceived(msg.name + " joined");
-                    wSocket.onmessage = registeredClient;
-                }
+            case "Registered":
+                // TODO: Handle Register finish with msg.name and msg.email
+
+                wSocket.onmessage = registeredClient;
                 break;
         }
     };

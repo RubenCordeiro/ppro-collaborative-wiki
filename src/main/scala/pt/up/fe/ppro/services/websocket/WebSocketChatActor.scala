@@ -58,15 +58,15 @@ class WebSocketChatActor(val documentActor: ActorRef) extends Actor with ActorLo
         log.debug("url {} received msg '{}'", ws.path, msg)
 
         Try(msg.parseJson.convertTo[messages.Message]) map {
-          case Register(name) =>
-            documentActor ! DocumentActor.ClientName(name)
-            context.become(registeredClient(webSocket, name))
+          case Register(token) =>
+            documentActor ! DocumentActor.ClientToken(token)
+            context.become(registeredClient(webSocket))
           case _ =>
         }
     }: Receive
   } orElse commonBehavior
 
-  def registeredClient(webSocket: WebSocket, name: String) = {
+  def registeredClient(webSocket: WebSocket) = {
     {
       case WebSocket.Message(ws, msg) =>
         log.debug("url {} received msg '{}'", ws.path, msg)
@@ -84,6 +84,9 @@ class WebSocketChatActor(val documentActor: ActorRef) extends Actor with ActorLo
         webSocket ! msg
 
       case msg: Left =>
+        webSocket ! msg
+
+      case msg: Registered =>
         webSocket ! msg
     }: Receive
   } orElse commonBehavior

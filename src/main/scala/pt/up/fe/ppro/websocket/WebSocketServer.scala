@@ -21,14 +21,12 @@ abstract class WebSocketServer(val serverConnection : ActorRef) extends HttpServ
 
   def handleConnection(request: HttpRequest)
 
-  def route: Route
-
-  override def receive = handshakingIf orElse initialization orElse businessLogicNoUpgrade
+  override def receive = handshakingIf orElse initialization orElse closeLogic
 
   def handshakingIf: Receive = {
     case request@HttpRequest(_, Uri.Path(path), _, _, _) if path.startsWith("/" + pathPrefix) && handshaking.isDefinedAt(request) =>
       handshaking(request)
-      context.become(handshaking orElse initialization orElse businessLogicNoUpgrade)
+      context.become(handshaking orElse initialization)
       handleConnection(request)
 
     case request@(_: HttpRequest) if handshaking.isDefinedAt(request) =>
@@ -48,9 +46,6 @@ abstract class WebSocketServer(val serverConnection : ActorRef) extends HttpServ
       log.info(s"Rejecting with $rejections sender: ${sender.path}")
       context stop self
   }
-
-
-  def businessLogicNoUpgrade: Receive = runRoute(route)
 
   override def businessLogic = {
     case TextFrame(message) =>

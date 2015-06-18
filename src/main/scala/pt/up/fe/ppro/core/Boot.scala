@@ -1,13 +1,13 @@
 package pt.up.fe.ppro.core
 
 
-import akka.actor.{ActorRefFactory, ActorSystem, Props, PoisonPill}
+import akka.actor.{ActorRefFactory, ActorSystem, Props}
 import akka.event.Logging.InfoLevel
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import pt.up.fe.ppro.WeakiConfiguration
-import pt.up.fe.ppro.api.{Api, ManagerService, RoutedHttpActor}
+import pt.up.fe.ppro.api.ManagerService
 import pt.up.fe.ppro.services.node.NodeActor
 import spray.can.Http
 import spray.can.server.UHttp
@@ -16,10 +16,10 @@ import spray.routing.directives.LogEntry
 
 import scala.concurrent.duration._
 
-trait BootedCore extends Core with Api {
+trait BootedCore extends Core {
   this: CoreActors =>
 
-  val rootService = system.actorOf(Props(classOf[ManagerService], routes), "root-service")
+  val rootService = system.actorOf(Props(classOf[ManagerService]), "root-service")
 
   private def showReq(req: HttpRequest) = LogEntry(req.uri, InfoLevel)
 }
